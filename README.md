@@ -1,3 +1,70 @@
+# Vibe UPI Payment Demo
+
+This project demonstrates a simple UPI deep-link payment flow (INR 1.00) and includes a local SMS-confirmation simulator for testing.
+
+Live demo
+- If you've deployed to Vercel/Netlify/etc., open that URL on a mobile device and click "Pay via UPI" to launch an installed UPI app (GPay/PhonePe/BHIM).
+
+Files
+- `index.html` — UI: order summary, Pay via UPI, debug helpers.
+- `script.js` — UPI deep-link generator (upi://pay) and SMS parsing/simulation helpers.
+- `README.md` — This file.
+
+How the UPI deep-link works
+- The page builds a UPI link in this format: `upi://pay?pa=<vpa>&pn=<name>&am=<amount>&cu=INR&tn=<orderId>`
+- Example: `upi://pay?pa=merchant@bank&pn=MerchantName&am=1.00&cu=INR&tn=ORDER12345`
+
+How to test
+1. Open the hosted URL on a mobile device (or open `index.html` directly on your phone).
+2. Confirm the payee VPA and click "Pay via UPI". The page uses INR 1.00 by default.
+3. Your phone should offer UPI apps to complete the payment. Complete it in your UPI app.
+
+Confirmation (mechanisms)
+
+1) Server-side reconciliation (recommended)
+
+- Flow (high level):
+  1. Your backend creates an order and returns an `orderId`.
+  2. Client opens UPI link including `tn=orderId` so the transaction contains a reference you can match.
+  3. When the PSP/bank credits your account, it will either send a webhook to your backend or you can poll the PSP reconciliation API to verify the incoming credit.
+  4. Backend marks the order `paid` only after matching amount + orderId/txn reference.
+
+- Example webhook simulation (curl):
+
+  Simulate a PSP/bank webhook to mark order paid (replace `order-123`):
+
+  ```powershell
+  curl -X POST http://localhost:3000/webhook -H "Content-Type: application/json" -d '{"orderId":"order-123","amount":"1.00","status":"SUCCESS","txnId":"TXN98765"}'
+  ```
+
+  A real PSP webhook will include authentication (HMAC/secret) — validate that before updating state.
+
+2) SMS-based confirmation (optional / bonus)
+
+- Android app can read incoming SMS messages (requires user permission READ_SMS) and POST parsed confirmations to your backend.
+- SMS Retriever / User Consent APIs are alternatives but require sender cooperation (usually not feasible for bank messages).
+- Risks: privacy concerns and Play Store policy restrictions. Prefer server-side reconciliation for production.
+
+3) Semi-manual / demo approach (acceptable for assignment submission)
+
+- Provide a simulator or instructions for a human to paste the received SMS into the page (this repo includes an SMS-simulation textarea + parser).
+
+References
+- SuperLabs guide on direct UPI integration (useful reference): https://blog.superlabs.co/direct-upi-integration/
+
+Notes on security and production readiness
+- Always verify payments server-side. Client-side indications (like returning from a UPI app) are not proof of payment.
+- Authenticate and validate webhooks (HMAC, signatures) before updating order status.
+- If building an SMS-reading Android app, document and request permissions responsibly and ensure compliance with store policies.
+
+Submission checklist
+- [x] Hosted project URL (Vercel / Netlify / GitHub Pages).
+- [x] GitHub repo with code and README.
+- [x] Order summary + Pay via UPI button + INR 1.00 deep-link.
+- [x] Mechanism or documented plan for payment confirmation (this README + server-side recommendation). 
+- [ ] Optional: Automatic SMS confirmation (bonus).
+
+License: MIT
 <<<<<<< HEAD
 Vibe UPI Payment Demo
 =====================
