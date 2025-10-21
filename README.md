@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Vibe UPI Payment Demo
 =====================
 
@@ -40,3 +41,6 @@ Optional next steps
 - Create a tiny Android companion app to auto-read SMS and call the backend to confirm payment (requires Play Store policy, user consent).
 
 License: MIT
+=======
+# Vibe-Coding
+>>>>>>> ea2d64b7e62aed35d80fa6810b95dc5685626408
